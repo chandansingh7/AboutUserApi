@@ -1,0 +1,35 @@
+---
+- name: Deploy Java project
+  hosts: all
+  become: true
+
+  tasks:
+    # Install Java
+    - name: Install Java
+      apt:
+        name: default-jdk
+        state: present
+
+    # Create directories and copy project files
+    - name: Create project directory
+      file:
+        path: /opt/AboutUserApi
+        state: directory
+        mode: 0755
+
+    - name: Copy project files
+      copy:
+        src: build/libs/AboutUserApi-0.0.1-SNAPSHOT.jar  # Replace with your project path
+        dest: /opt/myapp/
+        mode: 0644
+
+    # Build and run Java application (adjust commands based on your project)
+    - name: Build Java project
+      command: mvn clean package -f /opt/AboutUserApi/pom.xml  # Customize for your build command
+
+    - name: Run Java application
+      systemd:
+        name: AboutUserApi.service
+        enabled: yes
+        state: started
+        daemon_reload: yes
